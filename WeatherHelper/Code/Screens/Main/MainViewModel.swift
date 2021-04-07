@@ -8,7 +8,12 @@
 import UIKit
 
 final class MainViewModel: BaseViewModel {
-    var updateWeather: ((CurrentWeatherResponse) -> Void)?
+    enum ViewState {
+        case loading
+        case loaded(Result<CurrentWeatherResponse, Error>)
+    }
+
+    var updateViewState: ((ViewState) -> Void)?
 
     private lazy var service: WeatherService = {
         let networkManager = NetworkManager(sessionConfiguration: .default, interceptor: nil)
@@ -16,18 +21,12 @@ final class MainViewModel: BaseViewModel {
         return WeatherService(manager: manager)
     }()
 
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        updateViewState?(.loading)
         service.getCurrentWeather {
             [weak self] result in
-            switch result {
-            case let .success(response):
-                print(response)
-                self?.updateWeather?(response)
-
-            case let .failure(error):
-                print(error)
-            }
+            self?.updateViewState?(.loaded(result))
         }
     }
 }

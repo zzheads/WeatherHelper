@@ -11,7 +11,7 @@ import Alamofire
 protocol NetworkRequest: URLRequestConvertible {
     var endpoint: HTTPRequestEndpoint { get }
     var requestMethod: HTTPRequestMethod { get }
-    var parameters: HTTPRequestParameters? { get }
+    var parameters: HTTPRequestParameters { get }
     var headers: HTTPRequestHeaders { get }
     var cachePolicy: NSURLRequest.CachePolicy { get }
     var needAuthorization: Bool { get }
@@ -19,12 +19,18 @@ protocol NetworkRequest: URLRequestConvertible {
 
 extension NetworkRequest {
     var headers: HTTPRequestHeaders { .allHeaders }
-    var parameters: HTTPRequestParameters? { nil }
     var cachePolicy: NSURLRequest.CachePolicy { .useProtocolCachePolicy }
     var needAuthorization: Bool { true }
 }
 
 extension NetworkRequest {
+    static var accessKey: String { "access_key" }
+
+    var apiAccessKey: String? {
+        guard let path = Bundle.main.path(forResource: "Info", ofType: "plist") else { return nil }
+        return NSDictionary(contentsOfFile: path)?["APIAccessKey"] as? String
+    }
+
     func asURLRequest() throws -> URLRequest {
         guard let url = URL(string: endpoint.path) else {
             throw URLConvertibleError.failedToBuildPath
@@ -36,20 +42,22 @@ extension NetworkRequest {
         urlRequest.httpMethod = httpMethod.rawValue
         urlRequest.cachePolicy = cachePolicy
 
-        if let parameters = parameters {
-            urlRequest = try encodeURLParameters(parameters.url, urlRequest: urlRequest)
-            
-            switch parameters.body {
-            case .parameters(let parameters):
-                urlRequest = try encodeJSONParameters(parameters, urlRequest: urlRequest)
-                
-            case .data(let data):
-                urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-                urlRequest.httpBody = data
-                
-            case .none:
-                break
-            }
+        var parameters = self.parameters
+        if let apiAccessKey = self.apiAccessKey {
+            parameters.url?.updateValue(apiAccessKey, forKey: Self.accessKey)
+        }
+        urlRequest = try encodeURLParameters(parameters.url, urlRequest: urlRequest)
+
+        switch parameters.body {
+        case .parameters(let parameters):
+            urlRequest = try encodeJSONParameters(parameters, urlRequest: urlRequest)
+
+        case .data(let data):
+            urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            urlRequest.httpBody = data
+
+        case .none:
+            break
         }
 
         headers.forEach { urlRequest.setValue($1, forHTTPHeaderField: $0) }

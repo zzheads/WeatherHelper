@@ -7,8 +7,6 @@
 
 import UIKit
 
-let accessTokenDict = ["access_key": "1440ed42102a9e58bcc9da5ffdbfd5a7"]
-
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
