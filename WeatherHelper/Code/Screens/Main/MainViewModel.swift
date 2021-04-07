@@ -8,6 +8,8 @@
 import UIKit
 
 final class MainViewModel: BaseViewModel {
+    var updateWeather: ((CurrentWeatherResponse) -> Void)?
+
     private lazy var service: WeatherService = {
         let networkManager = NetworkManager(sessionConfiguration: .default, interceptor: nil)
         let manager = APIManager(networkManager: networkManager, adapterDataSource: self)
@@ -17,10 +19,12 @@ final class MainViewModel: BaseViewModel {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         service.getCurrentWeather {
-            result in
+            [weak self] result in
             switch result {
             case let .success(response):
                 print(response)
+                self?.updateWeather?(response)
+
             case let .failure(error):
                 print(error)
             }

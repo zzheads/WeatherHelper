@@ -38,7 +38,6 @@ extension TabBarViewModel: UITabBarControllerDelegate {
         case .main: break
         case .forecast: break
         }
-        print("Selected: \(item.title)")
         selected = item
     }
 }

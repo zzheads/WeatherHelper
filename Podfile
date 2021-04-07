@@ -14,6 +14,7 @@ target 'WeatherHelper' do
   pod 'Alamofire', '~> 5.2'
   pod 'Swinject'
   pod 'SnapKit'
+  pod 'Nuke'
   pod 'Firebase/Analytics'
   pod 'Firebase/Database'
   pod 'Firebase/Auth'

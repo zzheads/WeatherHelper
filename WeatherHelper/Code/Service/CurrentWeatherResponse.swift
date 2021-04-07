@@ -13,7 +13,7 @@ final class CurrentWeatherResponse: Codable {
         let type: String
         let query: String
         let language: String
-        let unit: String
+        let unit: CurrentWeatherRequest.Units
     }
 
     struct Location: Codable {
@@ -26,6 +26,10 @@ final class CurrentWeatherResponse: Codable {
         let localtime: String
         let localtime_epoch: TimeInterval
         let utc_offset: String
+
+        var description: String {
+            [name, region, country].joined(separator: ", ")
+        }
     }
 
     struct Current: Codable {
@@ -38,7 +42,7 @@ final class CurrentWeatherResponse: Codable {
         let wind_degree: Double
         let wind_dir: String
         let pressure: Int
-        let precip: Int
+        let precip: Double
         let humidity: Int
         let cloudcover: Int
         let feelslike: Double
@@ -49,6 +53,10 @@ final class CurrentWeatherResponse: Codable {
     let request: Request
     let location: Location
     let current: Current
+
+    var temperatureWithSign: String {
+        [current.temperature.description, request.unit.sign.temperature].joined()
+    }
 
     private enum CodingKeys: String, CodingKey {
         case request

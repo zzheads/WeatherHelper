@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		14E6377B5CBBBE659E22FB6A /* Pods_WeatherHelper.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 25616A58F185903C9961D447 /* Pods_WeatherHelper.framework */; };
+		A613378E261E334F00A88EA5 /* UIView+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = A613378D261E334F00A88EA5 /* UIView+Extension.swift */; };
 		A6638BBA261CE28C00E2F901 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6638BB9261CE28C00E2F901 /* AppDelegate.swift */; };
 		A6638BC3261CE28D00E2F901 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A6638BC2261CE28D00E2F901 /* Assets.xcassets */; };
 		A6638BC6261CE28D00E2F901 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A6638BC4261CE28D00E2F901 /* LaunchScreen.storyboard */; };
@@ -65,6 +66,7 @@
 		1F5A90CA3388AA857AC99E4F /* Pods-WeatherHelper.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WeatherHelper.debug.xcconfig"; path = "Target Support Files/Pods-WeatherHelper/Pods-WeatherHelper.debug.xcconfig"; sourceTree = "<group>"; };
 		25616A58F185903C9961D447 /* Pods_WeatherHelper.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WeatherHelper.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8E92E19BA0EF0C11FC435356 /* Pods-WeatherHelper.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WeatherHelper.release.xcconfig"; path = "Target Support Files/Pods-WeatherHelper/Pods-WeatherHelper.release.xcconfig"; sourceTree = "<group>"; };
+		A613378D261E334F00A88EA5 /* UIView+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Extension.swift"; sourceTree = "<group>"; };
 		A6638BB6261CE28C00E2F901 /* WeatherHelper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WeatherHelper.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A6638BB9261CE28C00E2F901 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		A6638BC2261CE28D00E2F901 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -192,6 +194,7 @@
 			children = (
 				A6638BD3261CEF1000E2F901 /* StaticAlertController.swift */,
 				A6638BD4261CEF1000E2F901 /* TextField.swift */,
+				A613378D261E334F00A88EA5 /* UIView+Extension.swift */,
 			);
 			path = "UIKit Extensions";
 			sourceTree = "<group>";
@@ -563,6 +566,7 @@
 				A6638C14261CEF1000E2F901 /* UIColor+LevelUp.swift in Sources */,
 				A6638BBA261CE28C00E2F901 /* AppDelegate.swift in Sources */,
 				A6638C09261CEF1000E2F901 /* HTTPRequestEndpoint.swift in Sources */,
+				A613378E261E334F00A88EA5 /* UIView+Extension.swift in Sources */,
 				A6638C05261CEF1000E2F901 /* TextField.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

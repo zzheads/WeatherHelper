@@ -8,20 +8,27 @@
 import UIKit
 
 enum TabBarItem: Int, CaseIterable {
+    private enum Constant: String {
+        case sun = "sun.max"
+        case wind
+        case main
+        case forecast
+    }
+
     case main
     case forecast
 
-    var title: String {
+    var title: String? {
         switch self {
-        case .main: return "Main"
-        case .forecast: return "Forecast"
+        case .main: return Constant.main.rawValue
+        case .forecast: return Constant.forecast.rawValue
         }
     }
 
-    var image: UIImage {
+    var image: UIImage? {
         switch self {
-        case .main: return UIImage(systemName: "sun.max")!
-        case .forecast: return UIImage(systemName: "wind")!
+        case .main: return UIImage(systemName: Constant.sun.rawValue)
+        case .forecast: return UIImage(systemName: Constant.wind.rawValue)
         }
     }
 
