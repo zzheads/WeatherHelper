@@ -2,23 +2,25 @@
 //  WeatherService.swift
 //  WeatherHelper
 //
-//  Created by Алексей Папин on 07.04.2021.
+//  Created by Алексей Папин on 08.04.2021.
 //
 
 import Foundation
 
-protocol WeatherServiceProtocol: AnyObject {
+protocol IWeatherService: AnyObject {
+    func fetchCurrent(_ parameters: [RequestParameter], completion: @escaping ((Result<CurrentWeatherResponse, Error>) -> Void))
 }
 
 final class WeatherService {
-    let manager: APIManager
+    private let manager: IAPIManager
 
-    init(manager: APIManager) {
+    init(manager: IAPIManager) {
         self.manager = manager
     }
+}
 
-    func getCurrentWeather(completion: @escaping ((Result<CurrentWeatherResponse, Error>) -> Void)) {
-        let request = CurrentWeatherRequest(location: .autoFetch, units: .metric)
-        manager.performRequest(request, completion: completion)
+extension WeatherService: IWeatherService {
+    func fetchCurrent(_ parameters: [RequestParameter], completion: @escaping ((Result<CurrentWeatherResponse, Error>) -> Void)) {
+        manager.performRequest(CurrentWeatherRequest(parameters), completion: completion)
     }
 }

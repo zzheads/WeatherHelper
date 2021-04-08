@@ -24,13 +24,6 @@ extension NetworkRequest {
 }
 
 extension NetworkRequest {
-    static var accessKey: String { "access_key" }
-
-    var apiAccessKey: String? {
-        guard let path = Bundle.main.path(forResource: "Info", ofType: "plist") else { return nil }
-        return NSDictionary(contentsOfFile: path)?["APIAccessKey"] as? String
-    }
-
     func asURLRequest() throws -> URLRequest {
         guard let url = URL(string: endpoint.path) else {
             throw URLConvertibleError.failedToBuildPath
@@ -41,11 +34,6 @@ extension NetworkRequest {
         var urlRequest = URLRequest(url: url)
         urlRequest.httpMethod = httpMethod.rawValue
         urlRequest.cachePolicy = cachePolicy
-
-        var parameters = self.parameters
-        if let apiAccessKey = self.apiAccessKey {
-            parameters.url?.updateValue(apiAccessKey, forKey: Self.accessKey)
-        }
         urlRequest = try encodeURLParameters(parameters.url, urlRequest: urlRequest)
 
         switch parameters.body {

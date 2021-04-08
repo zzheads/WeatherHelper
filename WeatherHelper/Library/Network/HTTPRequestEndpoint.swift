@@ -9,13 +9,8 @@
 import Foundation
 
 enum HTTPRequestEndpoint: String {
-    static let baseURLString: String = "http://api.weatherstack.com/"
-    
     case current
-    case historical
     case forecast
     
-    var path: String {
-        [HTTPRequestEndpoint.baseURLString, rawValue].joined()
-    }
+    var path: String { ["/", rawValue].joined() }
 }

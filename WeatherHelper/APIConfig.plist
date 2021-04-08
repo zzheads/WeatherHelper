@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>headers</key>
+	<dict/>
+	<key>baseAbsoluteString</key>
+	<string>https://api.weatherbit.io/v2.0/</string>
+	<key>iconsAbsoluteString</key>
+	<string>https://www.weatherbit.io/static/img/icons/</string>
+	<key>accessKey</key>
+	<string>73d1eec078d04448b38952dafdc2628a</string>
+</dict>
+</plist>

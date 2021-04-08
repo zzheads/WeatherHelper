@@ -2,65 +2,64 @@
 //  CurrentWeatherResponse.swift
 //  WeatherHelper
 //
-//  Created by Алексей Папин on 07.04.2021.
+//  Created by Алексей Папин on 08.04.2021.
 //
 
-import Foundation
 import CoreLocation
 
 final class CurrentWeatherResponse: Codable {
-    struct Request: Codable {
-        let type: String
-        let query: String
-        let language: String
-        let unit: CurrentWeatherRequest.Units
-    }
+    struct Data: Codable {
+        struct Weather: Codable {
+            let icon: String
+            let code: UInt
+            let description: String
+        }
 
-    struct Location: Codable {
-        let name: String
-        let country: String
-        let region: String
-        let lat: String
-        let lon: String
-        let timezone_id: String
-        let localtime: String
-        let localtime_epoch: TimeInterval
-        let utc_offset: String
+        let wind_cdir: String
+        let rh: UInt
+        let pod: String
+        let lon: CLLocationDegrees
+        let pres: Double
+        let timezone: String
+        let ob_time: String
+        let country_code: String
+        let clouds: UInt
+        let vis: UInt
+        let wind_spd: Double
+        let wind_cdir_full: String
+        let app_temp: Double
+        let state_code: String
+        let ts: TimeInterval
+        let h_angle: Double
+        let dewpt: Double
+        let weather: Weather
+        let uv: Double
+        let aqi: UInt
+        let station: String
+        let wind_dir: UInt
+        let elev_angle: Double
+        let datetime: String
+        let precip: Double
+        let ghi: Double
+        let dni: Double
+        let dhi: Double
+        let solar_rad: Double
+        let city_name: String
+        let sunrise: String
+        let sunset: String
+        let temp: Double
+        let lat: CLLocationDegrees
+        let slp: Double
 
-        var description: String {
-            [name, region, country].joined(separator: ", ")
+        var location: String {
+            [city_name, country_code, "(lat: \(lat), lon: \(lon))"].joined(separator: ", ")
+        }
+
+        func temperature(units: RequestParameter.Units) -> String {
+            [temp.description, units.degrees].joined()
         }
     }
 
-    struct Current: Codable {
-        let observation_time: String
-        let temperature: Double
-        let weather_code: Int
-        let weather_icons: [String]
-        let weather_descriptions: [String]
-        let wind_speed: Double
-        let wind_degree: Double
-        let wind_dir: String
-        let pressure: Int
-        let precip: Double
-        let humidity: Int
-        let cloudcover: Int
-        let feelslike: Double
-        let uv_index: Int
-        let visibility: Int
-    }
-
-    let request: Request
-    let location: Location
-    let current: Current
-
-    var temperatureWithSign: String {
-        [current.temperature.description, request.unit.sign.temperature].joined()
-    }
-
-    private enum CodingKeys: String, CodingKey {
-        case request
-        case location
-        case current
-    }
+    let data: [Data]
+    let count: UInt
 }

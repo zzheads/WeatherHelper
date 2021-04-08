@@ -19,13 +19,11 @@ final class APIManager: IAPIManager {
     // Dependencies
 
     private let networkManager: INetworkManager
-    private let adapterDataSource: HTTPRequestAdapterDataSource
-    
+
     // MARK: - Init
     
-    init(networkManager: INetworkManager, adapterDataSource: HTTPRequestAdapterDataSource) {
+    init(networkManager: INetworkManager) {
         self.networkManager = networkManager
-        self.adapterDataSource = adapterDataSource
     }
     
     // MARK: - IAPIManager

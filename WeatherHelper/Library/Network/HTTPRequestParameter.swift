@@ -18,4 +18,9 @@ struct HTTPRequestParameters {
     
     var body: BodyParameters?
     var url: Parameters?
+
+    init(body: BodyParameters? = nil, url: Parameters? = nil) {
+        self.body = body
+        self.url = url
+    }
 }

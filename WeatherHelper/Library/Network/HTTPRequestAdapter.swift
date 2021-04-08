@@ -8,47 +8,65 @@
 
 import Alamofire
 
-enum HTTPRequestAdapterError: Error {
-    case noUrl(String)
-    case noHost(String)
+enum HTTPRequestInterceptorError: Error {
+    case missedValues([HTTPRequestInterceptor.Key])
 }
 
-protocol HTTPRequestAdapterDataSource: AnyObject {
-    func hostUrl() -> URL
-    func valueForHTTPHeaderKey(_ key: String) -> String?
+protocol IHTTPRequestInterceptor: AnyObject {
+    func adapt(_ urlRequest: inout URLRequest)
 }
 
-protocol IHTTPRequestInterceptor: Alamofire.RequestInterceptor {
-    var dataSource: HTTPRequestAdapterDataSource? { get set }
+final class HTTPRequestInterceptor {
+    enum Key: String, StringRawValueable {
+        case key
+        case accessKey
+        case baseAbsoluteString
+        case headers
+    }
+
+    let accessKey: String
+    let baseAbsoluteString: String
+    let headers: [String: String]
+
+    var accessQueryItem: URLQueryItem { URLQueryItem(name: Key.key.rawValue, value: accessKey) }
+
+    init(provider: ProvidesPlist) throws {
+        let missedKeys: [Key] = [
+            provider[Key.accessKey.rawValue] == nil ? .accessKey : nil,
+            provider[Key.baseAbsoluteString.rawValue] == nil ? .baseAbsoluteString : nil,
+            provider[Key.headers.rawValue] == nil ? .headers : nil
+        ].compactMap { $0 }
+
+        guard let accessKey = provider[Key.accessKey.rawValue] as? String,
+              let baseAbsoluteString = provider[Key.baseAbsoluteString.rawValue] as? String,
+              let headers = provider[Key.headers.rawValue] as? [String: String]
+        else {
+            throw HTTPRequestInterceptorError.missedValues(missedKeys)
+        }
+
+        self.accessKey = accessKey
+        self.baseAbsoluteString = baseAbsoluteString
+        self.headers = headers
+    }
 }
 
-final class HTTPRequestInterceptor: IHTTPRequestInterceptor {    
-    weak var dataSource: HTTPRequestAdapterDataSource?
+extension HTTPRequestInterceptor: IHTTPRequestInterceptor {
+    func adapt(_ urlRequest: inout URLRequest) {
+        add(queryItem: accessQueryItem, toRequest: &urlRequest, baseAbsoluteString: baseAbsoluteString)
+        add(headers: headers, toRequest: &urlRequest)
+    }
 
-    func adapt(_ urlRequest: URLRequest, for session: Session, completion: @escaping (Result<URLRequest, Error>) -> Void) {
-        var mutableRequest = urlRequest
-        
-        guard let url = mutableRequest.url else {
-            completion(.failure(HTTPRequestAdapterError.noUrl("No url in \(mutableRequest)")))
-            return
-        }
-        
-        guard let hostUrl = dataSource?.hostUrl() else {
-            completion(.failure(HTTPRequestAdapterError.noHost("Data source must provide host url")))
-            return 
-        }
-        
-        mutableRequest.url = URL(string: url.absoluteString, relativeTo: hostUrl)
-        
-        if let allHTTPHeaderFields = urlRequest.allHTTPHeaderFields {
-            for (key, _) in allHTTPHeaderFields {
-                guard let value = dataSource?.valueForHTTPHeaderKey(key) else {
-                    continue
-                }
-                mutableRequest.setValue(value, forHTTPHeaderField: key)
-            }
-        }
+    private func add(queryItem: URLQueryItem, toRequest request: inout URLRequest, baseAbsoluteString: String) {
+        guard let url = request.url else { return }
+        var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        var items = components?.queryItems ?? []
+        items.append(queryItem)
+        components?.queryItems = items
+        let fullPath = [baseAbsoluteString, components?.string].compactMap { $0 }.joined()
+        request.url = URL(string: fullPath)
+    }
 
-        completion(.success(mutableRequest))
+    private func add(headers: [String: String], toRequest request: inout URLRequest) {
+        headers.forEach { request.setValue($1, forHTTPHeaderField: $0) }
     }
 }

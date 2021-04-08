@@ -8,5 +8,7 @@
 import Foundation
 
 final class ForecastViewModel: BaseViewModel {
-    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+    }
 }

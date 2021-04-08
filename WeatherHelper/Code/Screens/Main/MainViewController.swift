@@ -27,7 +27,7 @@ final class MainViewController: BaseViewController<MainViewModel> {
     private lazy var infoStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
-        stackView.distribution = .fillProportionally
+        stackView.distribution = .equalCentering
         stackView.spacing = appearance.margin.y
         stackView.addArrangedSubview(locationLabel)
         stackView.addArrangedSubview(weatherStackView)
@@ -45,8 +45,8 @@ final class MainViewController: BaseViewController<MainViewModel> {
     private lazy var weatherStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
-        stackView.distribution = .fillProportionally
-        stackView.spacing = appearance.margin.x / 2
+        stackView.distribution = .equalSpacing
+        stackView.spacing = 0
         stackView.addArrangedSubview(weatherImageView)
         stackView.addArrangedSubview(temperatureLabel)
         return stackView
@@ -99,10 +99,10 @@ final class MainViewController: BaseViewController<MainViewModel> {
 
                 switch result {
                 case let .success(response):
-                    self.locationLabel.text = response.location.description
-                    self.temperatureLabel.text = response.temperatureWithSign
-                    self.suggestionLabel.text = response.current.weather_descriptions.joined(separator: ",")
-                    guard let path = response.current.weather_icons.first, let url = URL(string: path) else { return }
+                    self.locationLabel.text = response.data.first?.location
+                    self.temperatureLabel.text = response.data.first?.temperature(units: .metric)
+                    self.suggestionLabel.text = response.data.first?.weather.description
+                    guard let path = response.data.first?.weather.icon, let url = self.viewModel.iconURL(icon: path) else { return }
                     Nuke.loadImage(with: url, into: self.weatherImageView)
 
                 case let .failure(error):
@@ -118,8 +118,7 @@ final class MainViewController: BaseViewController<MainViewModel> {
 
     private func makeConstraints() {
         infoStackView.snp.makeConstraints {
-            $0.left.right.equalToSuperview().inset(appearance.margin.x)
-            $0.centerY.equalToSuperview()
+            $0.center.equalToSuperview()
         }
 
         spinner.snp.makeConstraints {

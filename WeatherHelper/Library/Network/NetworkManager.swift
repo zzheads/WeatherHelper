@@ -23,32 +23,36 @@ enum NetworkError: Error {
 protocol INetworkManager: AnyObject {
     typealias NetworkManagerCompletion = (_ result: Swift.Result<Data, NetworkError>) -> Void
     
-    var requestInterceptor: IHTTPRequestInterceptor? { get set }
     func performRequest(_ request: URLRequestConvertible, completion: @escaping NetworkManagerCompletion)
     func httpResponse(_ request: URLRequestConvertible, completion: @escaping (Result<HTTPURLResponse, NetworkError>) -> Void)
 }
 
 final class NetworkManager: INetworkManager {
     
-    var requestInterceptor: IHTTPRequestInterceptor?
+    let interceptor: IHTTPRequestInterceptor
     private let sessionConfiguration: URLSessionConfiguration
     private lazy var session: Alamofire.Session = {
-        let session = Alamofire.Session(configuration: sessionConfiguration, interceptor: requestInterceptor)
+        let session = Alamofire.Session(configuration: sessionConfiguration)
         return session
     }()
     
     // MARK: - Init
     
-    init(sessionConfiguration: URLSessionConfiguration, interceptor: IHTTPRequestInterceptor?) {
+    init(sessionConfiguration: URLSessionConfiguration, interceptor: IHTTPRequestInterceptor) {
         self.sessionConfiguration = sessionConfiguration
-        self.requestInterceptor = interceptor
+        self.interceptor = interceptor
     }
     
     // MARK: - INetworkManager
     
     func performRequest(_ request: URLRequestConvertible, completion: @escaping NetworkManagerCompletion) {
-        print("Performing request: \(request.urlRequest?.description)")
-        session.request(request).validate().responseData { dataResponse in
+        guard var urlRequest = request.urlRequest else {
+            fatalError()
+        }
+        interceptor.adapt(&urlRequest)
+
+        print("Performing request: \(urlRequest.urlRequest?.description)")
+        session.request(urlRequest).validate().responseData { dataResponse in
             switch dataResponse.result {
             case .success(let data):
                 completion(.success(data))

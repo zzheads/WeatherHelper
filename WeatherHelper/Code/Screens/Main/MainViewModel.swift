@@ -6,37 +6,42 @@
 //
 
 import UIKit
+import Swinject
 
 final class MainViewModel: BaseViewModel {
+    private enum Key: String, StringRawValueable {
+        case iconsAbsoluteString
+    }
+
     enum ViewState {
         case loading
         case loaded(Result<CurrentWeatherResponse, Error>)
     }
 
+    private let dependenciesProvider = DependenciesProvider()
+    private lazy var plistProvider: ProvidesPlist = dependenciesProvider.resolve(ProvidesPlist.self)!
+    private lazy var service: IWeatherService = dependenciesProvider.resolve(IWeatherService.self)!
+
     var updateViewState: ((ViewState) -> Void)?
 
-    private lazy var service: WeatherService = {
-        let networkManager = NetworkManager(sessionConfiguration: .default, interceptor: nil)
-        let manager = APIManager(networkManager: networkManager, adapterDataSource: self)
-        return WeatherService(manager: manager)
-    }()
+    override func initialSetup() {
+        super.initialSetup()
+    }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         updateViewState?(.loading)
-        service.getCurrentWeather {
+
+        service.fetchCurrent([.latitude(38), .longitude(-78.25)]) {
             [weak self] result in
             self?.updateViewState?(.loaded(result))
         }
     }
-}
 
-extension MainViewModel: HTTPRequestAdapterDataSource {
-    func hostUrl() -> URL {
-        URL(string: HTTPRequestEndpoint.baseURLString)!
-    }
-
-    func valueForHTTPHeaderKey(_ key: String) -> String? {
-        nil
+    func iconURL(icon: String) -> URL? {
+        guard let iconsAbsoluteString = plistProvider[Key.iconsAbsoluteString.rawValue] as? String else {
+            return nil
+        }
+        return URL(string: [iconsAbsoluteString, icon, ".png"].joined())
     }
 }
