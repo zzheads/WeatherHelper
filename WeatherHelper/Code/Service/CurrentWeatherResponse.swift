@@ -55,7 +55,7 @@ final class CurrentWeatherResponse: Codable {
             [city_name, country_code, "(lat: \(lat), lon: \(lon))"].joined(separator: ", ")
         }
 
-        func temperature(units: RequestParameter.Units) -> String {
+        func temperature(units: WeatherRequest.Parameter.Units) -> String {
             [temp.description, units.degrees].joined()
         }
     }

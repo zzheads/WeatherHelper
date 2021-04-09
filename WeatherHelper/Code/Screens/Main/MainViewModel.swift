@@ -9,8 +9,8 @@ import UIKit
 import Swinject
 
 final class MainViewModel: BaseViewModel {
-    private enum Key: String, StringRawValueable {
-        case iconsAbsoluteString
+    private enum Constants {
+        static let units: WeatherRequest.Parameter.Units = .metric
     }
 
     enum ViewState {
@@ -19,7 +19,7 @@ final class MainViewModel: BaseViewModel {
     }
 
     private let dependenciesProvider = DependenciesProvider()
-    private lazy var plistProvider: ProvidesPlist = dependenciesProvider.resolve(ProvidesPlist.self)!
+    private lazy var mapper: MappingWeather = dependenciesProvider.resolve(MappingWeather.self)!
     private lazy var service: IWeatherService = dependenciesProvider.resolve(IWeatherService.self)!
 
     var updateViewState: ((ViewState) -> Void)?
@@ -32,16 +32,18 @@ final class MainViewModel: BaseViewModel {
         super.viewWillAppear(animated)
         updateViewState?(.loading)
 
-        service.fetchCurrent([.latitude(38), .longitude(-78.25)]) {
+        service.fetchCurrent([.latitude(38), .longitude(-78.25), .units(Constants.units)]) {
             [weak self] result in
             self?.updateViewState?(.loaded(result))
         }
     }
 
+    func temperature(temp: Double?) -> String? {
+        guard let temp = temp else { return nil }
+        return mapper.temperature(temp, units: Constants.units)
+    }
+
     func iconURL(icon: String) -> URL? {
-        guard let iconsAbsoluteString = plistProvider[Key.iconsAbsoluteString.rawValue] as? String else {
-            return nil
-        }
-        return URL(string: [iconsAbsoluteString, icon, ".png"].joined())
+        mapper.iconURL(icon: icon)        
     }
 }

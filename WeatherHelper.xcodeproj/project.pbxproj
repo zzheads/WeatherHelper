@@ -64,6 +64,7 @@
 		A6638C65261D049100E2F901 /* ForecastViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6638C64261D049100E2F901 /* ForecastViewController.swift */; };
 		A686785726204E5A00EE5B71 /* ForecastWeatherResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = A686785626204E5A00EE5B71 /* ForecastWeatherResponse.swift */; };
 		A686785C2620541A00EE5B71 /* ForecastWeatherCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = A686785B2620541A00EE5B71 /* ForecastWeatherCell.swift */; };
+		A6F87DD72621026E0051E6BD /* ForecastWeatherMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6F87DD62621026E0051E6BD /* ForecastWeatherMapper.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -128,6 +129,7 @@
 		A6638C64261D049100E2F901 /* ForecastViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForecastViewController.swift; sourceTree = "<group>"; };
 		A686785626204E5A00EE5B71 /* ForecastWeatherResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForecastWeatherResponse.swift; sourceTree = "<group>"; };
 		A686785B2620541A00EE5B71 /* ForecastWeatherCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForecastWeatherCell.swift; sourceTree = "<group>"; };
+		A6F87DD62621026E0051E6BD /* ForecastWeatherMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ForecastWeatherMapper.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -393,6 +395,7 @@
 				A686785A262053FC00EE5B71 /* Cells */,
 				A6638C61261D047600E2F901 /* ForecastViewModel.swift */,
 				A6638C64261D049100E2F901 /* ForecastViewController.swift */,
+				A6F87DD62621026E0051E6BD /* ForecastWeatherMapper.swift */,
 			);
 			path = Forecast;
 			sourceTree = "<group>";
@@ -567,6 +570,7 @@
 				A686785726204E5A00EE5B71 /* ForecastWeatherResponse.swift in Sources */,
 				A6638C18261CEF1000E2F901 /* UITextView+.swift in Sources */,
 				A61337CD261F065F00A88EA5 /* WeatherService.swift in Sources */,
+				A6F87DD72621026E0051E6BD /* ForecastWeatherMapper.swift in Sources */,
 				A6638C17261CEF1000E2F901 /* NSAttributedString+.swift in Sources */,
 				A6638C1B261CEF1000E2F901 /* UIButton+.swift in Sources */,
 				A6638C07261CEF1000E2F901 /* HTTPRequestRetrier.swift in Sources */,

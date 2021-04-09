@@ -17,6 +17,10 @@ final class APIAssembly: Assembly {
             PlistProvider(fileName: Constants.plistFileName)!
         }.inObjectScope(.container)
 
+        container.register(MappingWeather.self) {
+            WeatherMapper(plistProvider: $0.resolve(ProvidesPlist.self)!)
+        }.inObjectScope(.container)
+
         container.register(IHTTPRequestInterceptor.self) {
             try! HTTPRequestInterceptor(
                 provider: $0.resolve(ProvidesPlist.self)!

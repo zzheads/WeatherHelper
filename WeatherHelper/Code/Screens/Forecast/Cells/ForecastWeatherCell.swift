@@ -15,12 +15,16 @@ final class ForecastWeatherCell: UITableViewCell {
     }
 
     private let appearance = Appearance()
-    private lazy var spinner: UIActivityIndicatorView = {
-        let spinner = UIActivityIndicatorView(style: .medium)
-        spinner.color = .darkBlueberry
-        spinner.hidesWhenStopped = true
-        spinner.stopAnimating()
-        return spinner
+
+    private lazy var infoStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.distribution = .fillEqually
+        stackView.spacing = 0
+        stackView.addArrangedSubview(dateLabel)
+        stackView.addArrangedSubview(iconImageView)
+        stackView.addArrangedSubview(temperatureLabel)
+        return stackView
     }()
 
     private lazy var dateLabel: UILabel = {
@@ -43,53 +47,49 @@ final class ForecastWeatherCell: UITableViewCell {
         return label
     }()
 
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+        addSubviews()
+        makeConstraints()
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        addSubviews()
+        makeConstraints()
+    }
+
     override func prepareForReuse() {
         super.prepareForReuse()
         dateLabel.text = nil
         iconImageView.image = nil
         temperatureLabel.text = nil
+        Nuke.cancelRequest(for: iconImageView)
     }
 
     private func addSubviews() {
-        contentView.addSubviews([spinner, dateLabel, iconImageView, temperatureLabel])
+        contentView.addSubview(infoStackView)
     }
 
     private func makeConstraints() {
-        spinner.snp.makeConstraints { $0.center.equalToSuperview() }
-
-        dateLabel.snp.makeConstraints {
-            $0.leading.equalToSuperview().inset(appearance.margin.x)
-            $0.centerY.equalToSuperview()
-        }
-
-        iconImageView.snp.makeConstraints {
-            $0.top.bottom.equalToSuperview()
-            $0.leading.equalTo(dateLabel.snp.trailing).offset(appearance.margin.x)
-        }
-
-        temperatureLabel.snp.makeConstraints {
-            $0.centerY.equalToSuperview()
-            $0.leading.equalTo(iconImageView.snp.trailing).offset(appearance.margin.x)
-            $0.trailing.equalToSuperview().inset(appearance.margin.x)
-        }
+        infoStackView.snp.makeConstraints { $0.edges.equalToSuperview() }
     }
 }
 
 extension ForecastWeatherCell: ConfigurableCell {
-    enum State {
-        struct ViewModel {
-            let date: NSAttributedString
-            let icon: URL?
-            let temperature: NSAttributedString
+    struct ViewModel {
+        let date: NSAttributedString
+        let icon: URL?
+        let temperature: NSAttributedString
+    }
+
+    func configure(with model: ViewModel, onUpdate: ((ViewModel) -> Void)?) {
+        dateLabel.attributedText = model.date
+        temperatureLabel.attributedText = model.temperature
+        guard let url = model.icon else {
+            iconImageView.image = nil
+            return
         }
-
-        case loading
-        case loaded(ViewModel)
+        Nuke.loadImage(with: url, into: iconImageView)
     }
-
-    func configure(with model: State, onUpdate: ((State) -> Void)?) {
-        <#code#>
-    }
-
-
 }

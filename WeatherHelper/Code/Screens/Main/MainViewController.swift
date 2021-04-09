@@ -102,7 +102,7 @@ final class MainViewController: BaseViewController<MainViewModel> {
                 switch result {
                 case let .success(response):
                     self.locationLabel.text = response.data.first?.location
-                    self.temperatureLabel.text = response.data.first?.temperature(units: .metric)
+                    self.temperatureLabel.text = self.viewModel.temperature(temp: response.data.first?.temp)
                     self.suggestionLabel.text = response.data.first?.weather.description
                     guard let path = response.data.first?.weather.icon, let url = self.viewModel.iconURL(icon: path) else { return }
                     Nuke.loadImage(with: url, into: self.weatherImageView)
