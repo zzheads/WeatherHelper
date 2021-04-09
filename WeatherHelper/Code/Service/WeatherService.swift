@@ -8,7 +8,8 @@
 import Foundation
 
 protocol IWeatherService: AnyObject {
-    func fetchCurrent(_ parameters: [RequestParameter], completion: @escaping ((Result<CurrentWeatherResponse, Error>) -> Void))
+    func fetchCurrent(_ parameters: [WeatherRequest.Parameter], completion: @escaping ((Result<CurrentWeatherResponse, Error>) -> Void))
+    func fetchForecastDaily(_ parameters: [WeatherRequest.Parameter], completion: @escaping ((Result<ForecastWeatherResponse, Error>) -> Void))
 }
 
 final class WeatherService {
@@ -20,7 +21,13 @@ final class WeatherService {
 }
 
 extension WeatherService: IWeatherService {
-    func fetchCurrent(_ parameters: [RequestParameter], completion: @escaping ((Result<CurrentWeatherResponse, Error>) -> Void)) {
-        manager.performRequest(CurrentWeatherRequest(parameters), completion: completion)
+    func fetchCurrent(_ parameters: [WeatherRequest.Parameter], completion: @escaping ((Result<CurrentWeatherResponse, Error>) -> Void)) {
+        let request = WeatherRequest(.current, parameters: parameters)
+        manager.performRequest(request, completion: completion)
+    }
+
+    func fetchForecastDaily(_ parameters: [WeatherRequest.Parameter], completion: @escaping ((Result<ForecastWeatherResponse, Error>) -> Void)) {
+        let request = WeatherRequest(.forecastDaily, parameters: parameters)
+        manager.performRequest(request, completion: completion)
     }
 }

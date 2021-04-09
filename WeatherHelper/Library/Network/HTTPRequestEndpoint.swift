@@ -9,8 +9,10 @@
 import Foundation
 
 enum HTTPRequestEndpoint: String {
-    case current
-    case forecast
-    
-    var path: String { ["/", rawValue].joined() }
+    case current = "/current"
+    case forecastDaily = "/forecast/daily"
+    case forecastHourly = "/forecast/hourly"
+    case forecastMinutely = "/forecast/minutely"
+
+    var path: String { rawValue }
 }

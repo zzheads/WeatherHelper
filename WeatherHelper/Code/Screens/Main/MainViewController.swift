@@ -45,10 +45,12 @@ final class MainViewController: BaseViewController<MainViewModel> {
     private lazy var weatherStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
-        stackView.distribution = .equalSpacing
+        stackView.distribution = .equalCentering
         stackView.spacing = 0
+        stackView.addArrangedSubview(UIView())
         stackView.addArrangedSubview(weatherImageView)
         stackView.addArrangedSubview(temperatureLabel)
+        stackView.addArrangedSubview(UIView())
         return stackView
     }()
 
