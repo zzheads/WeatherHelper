@@ -35,8 +35,12 @@ extension TabBarViewModel: UITabBarControllerDelegate {
             return
         }
         switch item {
-        case .main: break
-        case .forecast: break
+        case .main:
+            break
+        case .forecast:
+            break
+        case .location:
+            break
         }
         selected = item
     }

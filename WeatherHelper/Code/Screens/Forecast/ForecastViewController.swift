@@ -13,8 +13,20 @@ final class ForecastViewController: BaseViewController<ForecastViewModel> {
     }
 
     private let appearance = Appearance()
+
+    private lazy var spinner: UIActivityIndicatorView = {
+        let spinner = UIActivityIndicatorView(style: .large)
+        spinner.color = .greyRaven
+        spinner.hidesWhenStopped = true
+        spinner.stopAnimating()
+        return spinner
+    }()
+
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
+        tableView.backgroundColor = .clear
+        tableView.separatorStyle = .none
+        tableView.allowsSelection = false
         tableView.dataSource = self
         tableView.delegate = self
         tableView.register(ForecastWeatherCell.self, forCellReuseIdentifier: ForecastWeatherCell.reuseIdentifier)
@@ -30,19 +42,32 @@ final class ForecastViewController: BaseViewController<ForecastViewModel> {
 
     override func bindUIWithViewModel() {
         super.bindUIWithViewModel()
-        viewModel.reloadTableView = {
-            [weak self] in
-            self?.tableView.reloadData()
+        viewModel.updateViewState = {
+            [weak self] state in
+            self?.tableView.isHidden = state == .loading
+            self?.spinner.isHidden = state == .loaded
+            switch state {
+            case .loading:
+                self?.spinner.startAnimating()
+
+            case .loaded:
+                self?.spinner.stopAnimating()
+                self?.tableView.reloadData()
+            }
         }
     }
 
     private func addSubviews() {
-        view.addSubview(tableView)
+        view.addSubviews([tableView, spinner])
     }
 
     private func makeConstraints() {
+        spinner.snp.makeConstraints {
+            $0.center.equalToSuperview()
+        }
+        
         tableView.snp.makeConstraints {
-            $0.edges.equalToSuperview().inset(appearance.margin.y)
+            $0.edges.equalTo(view.safeAreaLayoutGuide)
         }
     }
 }

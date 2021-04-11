@@ -14,7 +14,10 @@ final class DependenciesProvider {
     init() {
         self.container = Container()
         self.assembler = Assembler(
-            [APIAssembly()],
+            [
+                APIAssembly(),
+                LocationAssembly()
+            ],
             container: container
         )
     }

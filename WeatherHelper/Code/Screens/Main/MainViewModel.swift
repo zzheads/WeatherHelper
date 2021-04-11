@@ -7,6 +7,7 @@
 
 import UIKit
 import Swinject
+import CoreLocation
 
 final class MainViewModel: BaseViewModel {
     private enum Constants {
@@ -21,12 +22,9 @@ final class MainViewModel: BaseViewModel {
     private let dependenciesProvider = DependenciesProvider()
     private lazy var mapper: MappingWeather = dependenciesProvider.resolve(MappingWeather.self)!
     private lazy var service: IWeatherService = dependenciesProvider.resolve(IWeatherService.self)!
+    private lazy var locationProvider: ProvidesLocation = dependenciesProvider.resolve(ProvidesLocation.self)!
 
     var updateViewState: ((ViewState) -> Void)?
-
-    override func initialSetup() {
-        super.initialSetup()
-    }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)

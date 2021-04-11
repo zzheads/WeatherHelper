@@ -11,52 +11,30 @@ import Nuke
 
 final class ForecastWeatherCell: UITableViewCell {
     private struct Appearance {
-        let margin = CGPoint(x: 16, y: 8)
+        let iconSize = CGSize(width: 44, height: 33)
+        let margin = CGPoint(x: 8, y: 4)
     }
 
     private let appearance = Appearance()
 
-    private lazy var infoStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.distribution = .fillEqually
-        stackView.spacing = 0
-        stackView.addArrangedSubview(dateLabel)
-        stackView.addArrangedSubview(iconImageView)
-        stackView.addArrangedSubview(temperatureLabel)
-        return stackView
-    }()
-
-    private lazy var dateLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 13, weight: .medium)
-        label.textAlignment = .center
-        return label
-    }()
-
+    // MARK: - Subviews
     private lazy var iconImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
         return imageView
     }()
-
-    private lazy var temperatureLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 33, weight: .medium)
-        label.textAlignment = .center
-        return label
-    }()
+    private let dateLabel = UILabel()
+    private let temperatureLabel = UILabel()
+    private var infoViews: [UIView] { [dateLabel, iconImageView, temperatureLabel] }
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        addSubviews()
-        makeConstraints()
+        setupUI()
     }
 
     required init?(coder: NSCoder) {
         super.init(coder: coder)
-        addSubviews()
-        makeConstraints()
+        setupUI()
     }
 
     override func prepareForReuse() {
@@ -67,12 +45,34 @@ final class ForecastWeatherCell: UITableViewCell {
         Nuke.cancelRequest(for: iconImageView)
     }
 
+    private func setupUI() {
+        addSubviews()
+        makeConstraints()
+        backgroundColor = .clear
+    }
+
     private func addSubviews() {
-        contentView.addSubview(infoStackView)
+        contentView.addSubviews(infoViews)
     }
 
     private func makeConstraints() {
-        infoStackView.snp.makeConstraints { $0.edges.equalToSuperview() }
+        iconImageView.snp.makeConstraints {
+            $0.top.bottom.equalToSuperview().inset(appearance.margin.y)
+            $0.center.equalToSuperview()
+            $0.size.equalTo(appearance.iconSize)
+        }
+
+        dateLabel.snp.makeConstraints {
+            $0.leading.equalToSuperview().inset(appearance.margin.x)
+            $0.trailing.equalTo(iconImageView.snp.leading).offset(-appearance.margin.x)
+            $0.centerY.equalToSuperview()
+        }
+
+        temperatureLabel.snp.makeConstraints {
+            $0.centerY.equalToSuperview()
+            $0.trailing.equalToSuperview().inset(appearance.margin.x)
+            $0.leading.equalTo(iconImageView.snp.trailing).offset(appearance.margin.x)
+        }
     }
 }
 

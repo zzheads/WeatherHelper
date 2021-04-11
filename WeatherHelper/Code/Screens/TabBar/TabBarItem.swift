@@ -13,15 +13,18 @@ enum TabBarItem: Int, CaseIterable {
         case wind
         case main
         case forecast
+        case location
     }
 
     case main
     case forecast
+    case location
 
     var title: String? {
         switch self {
         case .main: return Constant.main.rawValue
         case .forecast: return Constant.forecast.rawValue
+        case .location: return Constant.location.rawValue
         }
     }
 
@@ -29,6 +32,7 @@ enum TabBarItem: Int, CaseIterable {
         switch self {
         case .main: return UIImage(systemName: Constant.sun.rawValue)
         case .forecast: return UIImage(systemName: Constant.wind.rawValue)
+        case .location: return UIImage(systemName: Constant.location.rawValue)
         }
     }
 
@@ -45,8 +49,18 @@ enum TabBarItem: Int, CaseIterable {
         switch self {
         case .main: controller = MainViewController(viewModel: MainViewModel())
         case .forecast: controller = ForecastViewController(viewModel: ForecastViewModel())
+        case .location: controller = LocationViewController(viewModel: LocationViewModel())
         }
-        controller.tabBarItem = tabBarItem
-        return controller
+        controller.title = title
+        let navController = navigationController(rootController: controller)
+        navController.tabBarItem = tabBarItem
+        return navController
+    }
+
+    private func navigationController(rootController: UIViewController) -> UINavigationController {
+        let navController = UINavigationController(rootViewController: rootController)
+        navController.navigationBar.barTintColor = .darkBlueberry
+        navController.navigationBar.barStyle = .black
+        return navController
     }
 }
