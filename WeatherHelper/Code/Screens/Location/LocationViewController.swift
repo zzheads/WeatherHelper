@@ -44,11 +44,23 @@ final class LocationViewController: BaseViewController<LocationViewModel> {
 
     private lazy var coordinateStackView: UIStackView = {
         let stack = UIStackView()
-        stack.axis = .horizontal
+        stack.axis = .vertical
         stack.distribution = .fillEqually
         stack.addArrangedSubview(latTextField)
         stack.addArrangedSubview(lonTextField)
         return stack
+    }()
+    
+    private lazy var cityTextField: UITextField = {
+        let textField = UITextField()
+        textField.borderStyle = .roundedRect
+        textField.placeholder = "City"
+        return textField
+    }()
+    
+    private lazy var resultLabel: UILabel = {
+        let label = UILabel()
+        return label
     }()
 
     override func setupUI() {
@@ -56,6 +68,7 @@ final class LocationViewController: BaseViewController<LocationViewModel> {
         view.backgroundColor = .whiteSmoke
         addSubviews()
         makeConstraints()
+        [latTextField, lonTextField, cityTextField].forEach { $0.addTarget(self, action: #selector(didEdit(_:)), for: .allEditingEvents) }
     }
 
     override func bindUIWithViewModel() {
@@ -64,10 +77,23 @@ final class LocationViewController: BaseViewController<LocationViewModel> {
             [weak self] selected in
             self?.segmenetedControl.selectedSegmentIndex = selected
         }
+        viewModel.didSetLocationKind = {
+            [weak self] kind, data in
+            self?.coordinateStackView.isHidden = kind != .coordinate
+            self?.cityTextField.isHidden = kind != .city
+
+            let text: String
+            switch kind {
+            case .city: text = "City: \(data.city ?? "-")"
+            case .location: text = "Location: \(data.location)"
+            case .coordinate: text = "Coordinate: \(data.coordinate)"
+            }
+            self?.resultLabel.text = text
+        }
     }
 
     private func addSubviews() {
-        view.addSubviews([segmenetedControl, coordinateStackView])
+        view.addSubviews([segmenetedControl, coordinateStackView, cityTextField, resultLabel])
     }
 
     private func makeConstraints() {
@@ -79,9 +105,43 @@ final class LocationViewController: BaseViewController<LocationViewModel> {
             $0.top.equalTo(segmenetedControl.snp.bottom).offset(appearance.margin.y)
             $0.left.right.equalToSuperview().inset(appearance.insets)
         }
+        
+        cityTextField.snp.makeConstraints {
+            $0.top.equalTo(segmenetedControl.snp.bottom).offset(appearance.margin.y)
+            $0.left.right.equalToSuperview().inset(appearance.insets)
+        }
+        
+        resultLabel.snp.makeConstraints {
+            $0.centerY.equalToSuperview()
+            $0.left.right.equalToSuperview().inset(appearance.insets)
+        }
     }
 
     @objc private func segmentDidChanged(_ sender: UISegmentedControl) {
         viewModel.didSelect(segment: sender.selectedSegmentIndex)
+    }
+    
+    @objc private func didEdit(_ sender: UITextField) {
+        switch sender {
+        case latTextField:
+            guard let text = sender.text else {
+                viewModel.data.lat = nil
+                return
+            }
+            viewModel.data.lat = Double(text)
+            
+        case lonTextField:
+            guard let text = sender.text else {
+                viewModel.data.lon = nil
+                return
+            }
+            viewModel.data.lon = Double(text)
+            
+        case cityTextField:
+            viewModel.data.city = sender.text
+            
+        default:
+            break
+        }
     }
 }

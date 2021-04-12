@@ -152,13 +152,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A61337A7261E5AD300A88EA5 /* Models */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Models;
-			sourceTree = "<group>";
-		};
 		A61337C8261F022E00A88EA5 /* Assemblies */ = {
 			isa = PBXGroup;
 			children = (
@@ -361,7 +354,6 @@
 			isa = PBXGroup;
 			children = (
 				A61337C8261F022E00A88EA5 /* Assemblies */,
-				A61337A7261E5AD300A88EA5 /* Models */,
 				A6638C68261D0C1700E2F901 /* Service */,
 				A6638C46261CF3EC00E2F901 /* Screens */,
 			);

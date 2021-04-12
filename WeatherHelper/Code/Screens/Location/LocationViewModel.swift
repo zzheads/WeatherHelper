@@ -9,32 +9,37 @@ import CoreLocation
 import UIKit
 
 final class LocationViewModel: BaseViewModel {
-    enum LocationKind: CaseIterable {
-        static var allCases: [LocationKind] = [
-            .location(nil),
-            .city(nil),
-            .coordinate(nil)
-        ]
+    enum LocationKind: String, CaseIterable {
+        case location
+        case city
+        case coordinate
 
-        case location(CLLocationCoordinate2D?)
-        case city(String?)
-        case coordinate(CLLocationCoordinate2D?)
-
-        var title: String {
-            switch self {
-            case .location: return "Location"
-            case .city: return "City"
-            case .coordinate: return "Coordinate"
-            }
+        var title: String { rawValue.capitalized }
+    }
+    
+    struct Data {
+        var location: CLLocationCoordinate2D?
+        var city: String?
+        var lat: CLLocationDegrees?
+        var lon: CLLocationDegrees?
+        var coordinate: CLLocationCoordinate2D? {
+            guard let lat = lat, let lon = lon else { return nil }
+            return CLLocationCoordinate2D(latitude: lat, longitude: lon)
         }
     }
 
     var selectSegment: ((Int) -> Void)?
+    var didSetLocationKind: ((LocationKind, Data) -> Void)?
 
     var items: [String] = LocationKind.allCases.map { $0.title }
 
     private var observers: [LocationObserver] = []
-    private var locationKind: LocationKind = .location(nil)
+    private var locationKind: LocationKind! {
+        didSet { didSetLocationKind?(locationKind, data) }
+    }
+    var data = Data() {
+        didSet { didSetLocationKind?(locationKind, data) }
+    }
     private var selectedSegment: Int? { items.firstIndex(of: locationKind.title) }
 
     private lazy var locationManager: CLLocationManager = {
@@ -42,8 +47,6 @@ final class LocationViewModel: BaseViewModel {
         manager.delegate = self
         return manager
     }()
-
-    private var lastLocation: CLLocationCoordinate2D?
 
     override init() {
         super.init()
@@ -58,6 +61,7 @@ final class LocationViewModel: BaseViewModel {
 
     override func didBindUIWithViewModel() {
         super.didBindUIWithViewModel()
+        locationKind = .location
         guard let selectedSegment = selectedSegment else { return }
         selectSegment?(selectedSegment)
     }
@@ -70,7 +74,7 @@ final class LocationViewModel: BaseViewModel {
 extension LocationViewModel: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let newLocation = locations.first else { return }
-        lastLocation = newLocation.coordinate
+        data.location = newLocation.coordinate
     }
 
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
