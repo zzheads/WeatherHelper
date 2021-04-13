@@ -12,6 +12,9 @@ import Nuke
 final class MainViewController: BaseViewController<MainViewModel> {
     private struct Appearance {
         let margin: CGPoint = .init(x: 24, y: 16)
+        let smallFont: UIFont = .systemFont(ofSize: 11, weight: .regular)
+        let normalFont: UIFont = .systemFont(ofSize: 13, weight: .medium)
+        let bigFont: UIFont = .systemFont(ofSize: 33, weight: .bold)
     }
 
     private let appearance = Appearance()
@@ -24,6 +27,14 @@ final class MainViewController: BaseViewController<MainViewModel> {
         return spinner
     }()
 
+    private lazy var locationMethodLabel: LocationLabel = {
+        let label = LocationLabel()
+        label.font = appearance.smallFont
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        return label
+    }()
+    
     private lazy var infoStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
@@ -37,8 +48,9 @@ final class MainViewController: BaseViewController<MainViewModel> {
 
     private lazy var locationLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 13, weight: .medium)
+        label.font = appearance.normalFont
         label.textAlignment = .center
+        label.numberOfLines = 0
         return label
     }()
 
@@ -92,10 +104,12 @@ final class MainViewController: BaseViewController<MainViewModel> {
 
             switch state {
             case .loading:
+                self.locationMethodLabel.isHidden = true
                 self.infoStackView.isHidden = true
                 self.spinner.startAnimating()
 
             case let .loaded(result):
+                self.locationMethodLabel.isHidden = false
                 self.infoStackView.isHidden = false
                 self.spinner.stopAnimating()
 
@@ -112,13 +126,30 @@ final class MainViewController: BaseViewController<MainViewModel> {
                 }
             }
         }
+        
+        viewModel.subscribeViews = {
+            [weak self] provider in
+            guard let self = self, let provider = provider else { return }
+            provider.addObserver(self.locationMethodLabel)
+        }
+        
+        viewModel.unsubscribeViews = {
+            [weak self] provider in
+            guard let self = self, let provider = provider else { return }
+            provider.removeObserver(self.locationMethodLabel)
+        }
     }
 
     private func addSubviews() {
-        view.addSubviews([infoStackView, spinner])
+        view.addSubviews([infoStackView, spinner, locationMethodLabel])
     }
 
     private func makeConstraints() {
+        locationMethodLabel.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide).inset(appearance.margin.y)
+            $0.leading.trailing.equalToSuperview().inset(appearance.margin.x)
+        }
+        
         infoStackView.snp.makeConstraints {
             $0.center.equalToSuperview()
         }

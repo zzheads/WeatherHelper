@@ -9,6 +9,7 @@ import UIKit
 
 final class ForecastViewController: BaseViewController<ForecastViewModel> {
     private struct Appearance {
+        let smallFont: UIFont = .systemFont(ofSize: 11, weight: .regular)
         let margin = CGPoint(x: 16, y: 8)
     }
 
@@ -22,6 +23,14 @@ final class ForecastViewController: BaseViewController<ForecastViewModel> {
         return spinner
     }()
 
+    private lazy var locationMethodLabel: LocationLabel = {
+        let label = LocationLabel()
+        label.font = appearance.smallFont
+        label.textAlignment = .center
+        label.numberOfLines = 0
+        return label
+    }()
+    
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.backgroundColor = .clear
@@ -55,10 +64,21 @@ final class ForecastViewController: BaseViewController<ForecastViewModel> {
                 self?.tableView.reloadData()
             }
         }
+        viewModel.subscribeViews = {
+            [weak self] provider in
+            guard let self = self, let provider = provider else { return }
+            provider.addObserver(self.locationMethodLabel)
+        }
+        
+        viewModel.unsubscribeViews = {
+            [weak self] provider in
+            guard let self = self, let provider = provider else { return }
+            provider.removeObserver(self.locationMethodLabel)
+        }
     }
 
     private func addSubviews() {
-        view.addSubviews([tableView, spinner])
+        view.addSubviews([tableView, spinner, locationMethodLabel])
     }
 
     private func makeConstraints() {
@@ -66,8 +86,14 @@ final class ForecastViewController: BaseViewController<ForecastViewModel> {
             $0.center.equalToSuperview()
         }
         
+        locationMethodLabel.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide).inset(appearance.margin.y)
+            $0.leading.trailing.equalToSuperview().inset(appearance.margin.x)
+        }
+        
         tableView.snp.makeConstraints {
-            $0.edges.equalTo(view.safeAreaLayoutGuide)
+            $0.top.equalTo(locationMethodLabel.snp.bottom)
+            $0.left.right.bottom.equalTo(view.safeAreaLayoutGuide)
         }
     }
 }

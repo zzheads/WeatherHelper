@@ -21,10 +21,13 @@ final class ForecastViewModel: BaseViewModel {
     private let mapper: MappingWeather = DependenciesProvider.shared.resolve(MappingWeather.self)!
     private let service: IWeatherService = DependenciesProvider.shared.resolve(IWeatherService.self)!
     private weak var locationProvider = DependenciesProvider.shared.resolve(ProvidesLocation.self)
+    private let defaultMethod = DependenciesProvider.shared.resolve(LocationMethod.self)!
 
     var models: [ForecastWeatherCell.ViewModel] = []
 
     var updateViewState: ((ViewState) -> Void)?
+    var subscribeViews: ((ProvidesLocation?) -> Void)?
+    var unsubscribeViews: ((ProvidesLocation?) -> Void)?
 
     override init() {
         super.init()
@@ -32,15 +35,21 @@ final class ForecastViewModel: BaseViewModel {
     }
     
     deinit {
+        unsubscribeViews?(locationProvider)
         locationProvider?.removeObserver(self)
+    }
+    
+    override func didBindUIWithViewModel() {
+        super.didBindUIWithViewModel()
+        subscribeViews?(locationProvider)
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        update()
+        update(withLocationMethod: defaultMethod)
     }
     
-    private func update(withLocationMethod method: LocationMethod = .setCity(Constants.defaultCity)) {
+    private func update(withLocationMethod method: LocationMethod) {
         guard var parameters = method.parameters else {
             // TODO: handle bad method
             return

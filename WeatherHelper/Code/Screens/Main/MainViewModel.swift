@@ -11,7 +11,6 @@ import CoreLocation
 
 final class MainViewModel: BaseViewModel {
     private enum Constants {
-        static let defaultCity = "Volgograd"
         static let units: WeatherRequest.Parameter.Units = .metric
     }
 
@@ -23,21 +22,26 @@ final class MainViewModel: BaseViewModel {
     private let mapper: MappingWeather = DependenciesProvider.shared.resolve(MappingWeather.self)!
     private let service: IWeatherService = DependenciesProvider.shared.resolve(IWeatherService.self)!
     private weak var locationProvider = DependenciesProvider.shared.resolve(ProvidesLocation.self)
+    private let defaultMethod = DependenciesProvider.shared.resolve(LocationMethod.self)!
 
+    var subscribeViews: ((ProvidesLocation?) -> Void)?
+    var unsubscribeViews: ((ProvidesLocation?) -> Void)?
     var updateViewState: ((ViewState) -> Void)?
 
-    override init() {
-        super.init()
-        locationProvider?.addObserver(self)
-    }
-    
     deinit {
+        unsubscribeViews?(locationProvider)
         locationProvider?.removeObserver(self)
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        update()
+        update(withLocationMethod: defaultMethod)
+    }
+    
+    override func didBindUIWithViewModel() {
+        super.didBindUIWithViewModel()
+        locationProvider?.addObserver(self)
+        subscribeViews?(locationProvider)
     }
     
     func temperature(temp: Double?) -> String? {
@@ -49,7 +53,7 @@ final class MainViewModel: BaseViewModel {
         mapper.iconURL(icon: icon)        
     }
     
-    private func update(withLocationMethod method: LocationMethod = .setCity(Constants.defaultCity)) {
+    private func update(withLocationMethod method: LocationMethod) {
         guard var parameters = method.parameters else {
             // TODO: handle bad method
             return

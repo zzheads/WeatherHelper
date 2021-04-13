@@ -35,7 +35,7 @@ final class LocationViewModel: BaseViewModel {
     var items: [String] = LocationKind.allCases.map { $0.title }
 
     private var observers: [LocationObserver] = []
-    private var locationKind: LocationKind! {
+    private var locationKind: LocationKind {
         didSet { locationDidChange() }
     }
     var data = Data() {
@@ -49,9 +49,10 @@ final class LocationViewModel: BaseViewModel {
         return manager
     }()
 
-    override init() {
+    init(locationKind: LocationKind = .location) {
+        self.locationKind = locationKind
         super.init()
-        locationManager.startUpdatingLocation()
+        locationManager.requestWhenInUseAuthorization()
     }
 
     deinit {
@@ -72,18 +73,27 @@ final class LocationViewModel: BaseViewModel {
     }
     
     private func locationDidChange() {
-        guard let locationKind = locationKind else { return }
         didSetLocationKind?(locationKind, data)
-        let method: LocationMethod
-        switch locationKind {
+        notifyAll()
+    }
+    
+    private func method(forKind kind: LocationKind, data: Data) -> LocationMethod {
+        switch kind {
         case .location:
-            method = .updating(status: locationManager.authorizationStatus, coordinate: data.location)
+            return .updating(status: locationManager.authorizationStatus, coordinate: data.location)
         case .city:
-            method = .setCity(data.city)
+            return .setCity(data.city)
         case .coordinate:
-            method = .setCoordinate(data.coordinate)
+            return .setCoordinate(data.coordinate)
         }
-        observers.forEach { $0.locationDidChange(method) }
+    }
+    
+    private func notify(observer: LocationObserver?) {
+        observer?.locationDidChange(method(forKind: locationKind, data: data))
+    }
+    
+    private func notifyAll() {
+        observers.forEach { $0.locationDidChange(method(forKind: locationKind, data: data)) }
     }
 }
 
@@ -110,6 +120,7 @@ extension LocationViewModel: CLLocationManagerDelegate {
 extension LocationViewModel: ProvidesLocation {
     func addObserver(_ observer: LocationObserver) {
         observers.append(observer)
+        notify(observer: observer)
     }
 
     func removeObserver(_ observer: LocationObserver) {

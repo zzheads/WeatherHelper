@@ -58,17 +58,25 @@ final class LocationViewController: BaseViewController<LocationViewModel> {
         return textField
     }()
     
-    private lazy var resultLabel: UILabel = {
-        let label = UILabel()
+    private lazy var resultLabel: LocationLabel = {
+        let label = LocationLabel()
+        label.font = .systemFont(ofSize: 11, weight: .regular)
+        label.textAlignment = .center
+        label.numberOfLines = 0
         return label
     }()
 
+    deinit {
+        viewModel.removeObserver(resultLabel)
+    }
+    
     override func setupUI() {
         super.setupUI()
         view.backgroundColor = .whiteSmoke
         addSubviews()
         makeConstraints()
         [latTextField, lonTextField, cityTextField].forEach { $0.addTarget(self, action: #selector(didEdit(_:)), for: .allEditingEvents) }
+        viewModel.addObserver(resultLabel)
     }
 
     override func bindUIWithViewModel() {
@@ -81,14 +89,6 @@ final class LocationViewController: BaseViewController<LocationViewModel> {
             [weak self] kind, data in
             self?.coordinateStackView.isHidden = kind != .coordinate
             self?.cityTextField.isHidden = kind != .city
-
-            let text: String
-            switch kind {
-            case .city: text = "City: \(data.city ?? "-")"
-            case .location: text = "Location: \(data.location)"
-            case .coordinate: text = "Coordinate: \(data.coordinate)"
-            }
-            self?.resultLabel.text = text
         }
     }
 

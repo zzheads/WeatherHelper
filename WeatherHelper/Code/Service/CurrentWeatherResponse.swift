@@ -23,8 +23,8 @@ final class CurrentWeatherResponse: Codable {
         let timezone: String
         let ob_time: String
         let country_code: String
-        let clouds: UInt
-        let vis: UInt
+        let clouds: Double
+        let vis: Double
         let wind_spd: Double
         let wind_cdir_full: String
         let app_temp: Double
@@ -34,9 +34,9 @@ final class CurrentWeatherResponse: Codable {
         let dewpt: Double
         let weather: Weather
         let uv: Double
-        let aqi: UInt
+        let aqi: Double?
         let station: String
-        let wind_dir: UInt
+        let wind_dir: Double
         let elev_angle: Double
         let datetime: String
         let precip: Double
