@@ -57,9 +57,9 @@ final class ForecastWeatherResponse: Codable {
 
     let data: [Data]
     let city_name: String
-    let lon: CLLocationDegrees
+    let lon: String
     let timezone: String
-    let lat: CLLocationDegrees
+    let lat: String
     let country_code: String
     let state_code: String
 }

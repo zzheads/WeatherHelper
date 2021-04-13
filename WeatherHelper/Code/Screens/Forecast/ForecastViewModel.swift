@@ -8,6 +8,11 @@
 import Foundation
 
 final class ForecastViewModel: BaseViewModel {
+    private enum Constants {
+        static let defaultCity = "Volgograd"
+        static let units: WeatherRequest.Parameter.Units = .metric
+    }
+
     enum ViewState {
         case loading
         case loaded
@@ -15,15 +20,34 @@ final class ForecastViewModel: BaseViewModel {
 
     private let mapper: MappingWeather = DependenciesProvider.shared.resolve(MappingWeather.self)!
     private let service: IWeatherService = DependenciesProvider.shared.resolve(IWeatherService.self)!
+    private weak var locationProvider = DependenciesProvider.shared.resolve(ProvidesLocation.self)
 
     var models: [ForecastWeatherCell.ViewModel] = []
 
     var updateViewState: ((ViewState) -> Void)?
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+    override init() {
+        super.init()
+        locationProvider?.addObserver(self)
+    }
+    
+    deinit {
+        locationProvider?.removeObserver(self)
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        update()
+    }
+    
+    private func update(withLocationMethod method: LocationMethod = .setCity(Constants.defaultCity)) {
+        guard var parameters = method.parameters else {
+            // TODO: handle bad method
+            return
+        }
+        parameters.append(.units(Constants.units))
         updateViewState?(.loading)
-        service.fetchForecastDaily([.latitude(38), .longitude(-78.25)]) {
+        service.fetchForecastDaily(parameters) {
             [weak self] result in
             guard let self = self else { return }
             switch result {
@@ -36,5 +60,10 @@ final class ForecastViewModel: BaseViewModel {
             self.updateViewState?(.loaded)
         }
     }
+}
 
+extension ForecastViewModel: LocationObserver {
+    func locationDidChange(_ newMethod: LocationMethod) {
+        update(withLocationMethod: newMethod)
+    }
 }
