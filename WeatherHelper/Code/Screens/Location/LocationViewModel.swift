@@ -31,14 +31,15 @@ final class LocationViewModel: BaseViewModel {
     var selectSegment: ((Int) -> Void)?
     var didSetLocationKind: ((LocationKind, Data) -> Void)?
 
+    let id: String = UUID().uuidString
     var items: [String] = LocationKind.allCases.map { $0.title }
 
     private var observers: [LocationObserver] = []
     private var locationKind: LocationKind! {
-        didSet { didSetLocationKind?(locationKind, data) }
+        didSet { locationDidChange() }
     }
     var data = Data() {
-        didSet { didSetLocationKind?(locationKind, data) }
+        didSet { locationDidChange() }
     }
     private var selectedSegment: Int? { items.firstIndex(of: locationKind.title) }
 
@@ -68,6 +69,21 @@ final class LocationViewModel: BaseViewModel {
 
     func didSelect(segment: Int) {
         locationKind = LocationKind.allCases[segment]
+    }
+    
+    private func locationDidChange() {
+        guard let locationKind = locationKind else { return }
+        didSetLocationKind?(locationKind, data)
+        let method: LocationMethod
+        switch locationKind {
+        case .location:
+            method = .updating(status: locationManager.authorizationStatus, coordinate: data.location)
+        case .city:
+            method = .setCity(data.city)
+        case .coordinate:
+            method = .setCoordinate(data.coordinate)
+        }
+        observers.forEach { $0.locationDidChange(method) }
     }
 }
 

@@ -19,23 +19,26 @@ final class MainViewModel: BaseViewModel {
         case loaded(Result<CurrentWeatherResponse, Error>)
     }
 
-    private let dependenciesProvider = DependenciesProvider()
-    private lazy var mapper: MappingWeather = dependenciesProvider.resolve(MappingWeather.self)!
-    private lazy var service: IWeatherService = dependenciesProvider.resolve(IWeatherService.self)!
-    private lazy var locationProvider: ProvidesLocation = dependenciesProvider.resolve(ProvidesLocation.self)!
+    private let mapper: MappingWeather = DependenciesProvider.shared.resolve(MappingWeather.self)!
+    private let service: IWeatherService = DependenciesProvider.shared.resolve(IWeatherService.self)!
+    private let locationProvider: ProvidesLocation = DependenciesProvider.shared.resolve(ProvidesLocation.self)!
 
     var updateViewState: ((ViewState) -> Void)?
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        updateViewState?(.loading)
-
-        service.fetchCurrent([.latitude(38), .longitude(-78.25), .units(Constants.units)]) {
-            [weak self] result in
-            self?.updateViewState?(.loaded(result))
-        }
+    override init() {
+        super.init()
+        locationProvider.addObserver(self)
     }
-
+    
+    deinit {
+        locationProvider.removeObserver(self)
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        update(withLocationMethod: .setCity("Volgograd"))
+    }
+    
     func temperature(temp: Double?) -> String? {
         guard let temp = temp else { return nil }
         return mapper.temperature(temp, units: Constants.units)
@@ -43,5 +46,24 @@ final class MainViewModel: BaseViewModel {
 
     func iconURL(icon: String) -> URL? {
         mapper.iconURL(icon: icon)        
+    }
+    
+    private func update(withLocationMethod method: LocationMethod) {
+        guard var parameters = method.parameters else {
+            // TODO: handle bad method
+            return
+        }
+        parameters.append(.units(Constants.units))
+        updateViewState?(.loading)
+        service.fetchCurrent(parameters) {
+            [weak self] result in
+            self?.updateViewState?(.loaded(result))
+        }
+    }
+}
+
+extension MainViewModel: LocationObserver {
+    func locationDidChange(_ newMethod: LocationMethod) {
+        update(withLocationMethod: newMethod)
     }
 }

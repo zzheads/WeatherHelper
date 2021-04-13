@@ -44,12 +44,12 @@ enum TabBarItem: Int, CaseIterable {
         )
     }
 
-    var controller: UIViewController {
+    func controller<T: BaseViewModel>(viewModel: T? = nil) -> UINavigationController {
         let controller: UIViewController
         switch self {
-        case .main: controller = MainViewController(viewModel: MainViewModel())
-        case .forecast: controller = ForecastViewController(viewModel: ForecastViewModel())
-        case .location: controller = LocationViewController(viewModel: LocationViewModel())
+        case .main: controller = MainViewController(viewModel: (viewModel as? MainViewModel) ?? MainViewModel())
+        case .forecast: controller = ForecastViewController(viewModel: (viewModel as? ForecastViewModel) ?? ForecastViewModel())
+        case .location: controller = LocationViewController(viewModel: (viewModel as? LocationViewModel) ?? LocationViewModel())
         }
         controller.title = title
         let navController = navigationController(rootController: controller)

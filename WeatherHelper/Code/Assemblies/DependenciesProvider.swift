@@ -8,11 +8,13 @@
 import Swinject
 
 final class DependenciesProvider {
+    static let shared = DependenciesProvider()
+    
     private let container: Container
     private let assembler: Assembler
 
     init() {
-        self.container = Container()
+        self.container = Container(defaultObjectScope: .container)
         self.assembler = Assembler(
             [
                 APIAssembly(),

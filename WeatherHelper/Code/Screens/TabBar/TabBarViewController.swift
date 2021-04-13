@@ -13,7 +13,6 @@ final class TabBarViewController: UITabBarController {
     init(viewModel: TabBarViewModel) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
-        self.setViewControllers(viewModel.items.map { $0.controller }, animated: false)
         self.delegate = self.viewModel
     }
 
@@ -27,6 +26,10 @@ final class TabBarViewController: UITabBarController {
             [weak self] item in
             guard let self = self, let item = item, let index = self.viewModel.items.firstIndex(of: item) else { return }
             self.selectedIndex = index
+        }
+        viewModel.setControllers = {
+            [weak self] controllers, animated in
+            self?.setViewControllers(controllers, animated: animated)
         }
 
         viewModel.viewDidLoad()

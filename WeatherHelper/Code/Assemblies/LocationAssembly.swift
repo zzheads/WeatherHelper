@@ -11,6 +11,6 @@ final class LocationAssembly: Assembly {
     func assemble(container: Container) {
         container.register(ProvidesLocation.self) {
             _ in LocationViewModel()
-        }
+        }.inObjectScope(.container)
     }
 }

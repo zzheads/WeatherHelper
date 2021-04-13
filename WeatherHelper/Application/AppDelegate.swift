@@ -12,7 +12,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        let tabBarController = TabBarViewController(viewModel: TabBarViewModel(selected: .forecast))
+        
+        let locationProvider = DependenciesProvider.shared.resolve(ProvidesLocation.self)
+        
+        let model = TabBarViewModel(selected: .forecast, locationProvider: locationProvider)
+        let tabBarController = TabBarViewController(viewModel: model)
         window = UIWindow(frame: UIScreen.main.bounds)
         window?.rootViewController = tabBarController
         window?.makeKeyAndVisible()

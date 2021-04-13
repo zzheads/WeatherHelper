@@ -16,7 +16,7 @@ final class CurrentWeatherResponse: Codable {
         }
 
         let wind_cdir: String
-        let rh: UInt
+        let rh: Double
         let pod: String
         let lon: CLLocationDegrees
         let pres: Double

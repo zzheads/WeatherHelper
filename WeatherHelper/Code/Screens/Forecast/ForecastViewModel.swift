@@ -13,9 +13,8 @@ final class ForecastViewModel: BaseViewModel {
         case loaded
     }
 
-    private let dependenciesProvider = DependenciesProvider()
-    private lazy var mapper: MappingWeather = dependenciesProvider.resolve(MappingWeather.self)!
-    private lazy var service: IWeatherService = dependenciesProvider.resolve(IWeatherService.self)!
+    private let mapper: MappingWeather = DependenciesProvider.shared.resolve(MappingWeather.self)!
+    private let service: IWeatherService = DependenciesProvider.shared.resolve(IWeatherService.self)!
 
     var models: [ForecastWeatherCell.ViewModel] = []
 
